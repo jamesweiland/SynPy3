@@ -2,6 +2,7 @@
 from basic_functions import ceiling, string_to_sequence, calculate_bar_ticks, velocity_sequence_to_min_timespan
 import parameter_setter 
 import rhythm_parser 
+import miditoolkit
 
 class Note():
 	def __init__(self, firstarg = None, duration = None, velocity = None):
@@ -119,16 +120,16 @@ def note_sequence_to_velocity_sequence(noteSequence, timespanTicks = None):
 
 	for note in noteSequence:
 		
-		interOnsetInterval = note.startTime - previousNoteStartTime	
+		interOnsetInterval = note.start - previousNoteStartTime	
 		#ignore note if it is part of a chord...
 		if interOnsetInterval!=0:
-			velocitySequence += [0]*(interOnsetInterval-1)	
+			velocitySequence += [0]*int((interOnsetInterval-1))
 			velocitySequence += [note.velocity]
 
-		previousNoteStartTime = note.startTime
+		previousNoteStartTime = note.start
 
 	if timespanTicks!=None:
-		velocitySequence += [0]*(timespanTicks - len(velocitySequence))
+		velocitySequence += [0]*int((timespanTicks - len(velocitySequence)))
 	else:
 		velocitySequence += [0]*(noteSequence[-1].duration-1)
 
@@ -233,7 +234,7 @@ class Bar:
 
 	# return the length of a bar in time units (ticks)
 	def get_bar_ticks(self):
-		return calculate_bar_ticks(self.timeSignature.get_numerator(),self.timeSignature.get_denominator(), self.tpq)
+		return calculate_bar_ticks(self.timeSignature.get_numerator(), self.timeSignature.get_denominator(), self.tpq)
 
 	def is_empty(self):
 		if max(self.get_velocity_sequence())>0:
@@ -261,12 +262,17 @@ class Bar:
 
 
 class TimeSignature():
+	tsString: str
 	def __init__(self, inputString):
 		if inputString in parameter_setter.read_time_signature():
 			self.tsString = inputString
 		else:
 			print("Error: undefined time-signature: ", inputString)
-			raise NullTimeSignatureError
+			raise RuntimeError
+		
+	def from_mtk_timesig(mtk_timesig: miditoolkit.TimeSignature) -> "TimeSignature":
+		tsString = str(mtk_timesig.numerator) + "/" + str(mtk_timesig.denominator)
+		return TimeSignature(tsString)
 
 	def get_subdivision_sequence(self):
 		return parameter_setter.timeSignatureBase[self.tsString][0]

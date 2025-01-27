@@ -35,13 +35,13 @@ def get_syncopation(bar, parameters = None):
 	#	print note.to_string()
 		# find such beatIndex such that note.startTime is located between (including) beatsTicks[beatIndex] and (not including) beatsTicks[beatIndex+1]
 		beatIndex = 0
-		while note.startTime < beatsTicks[beatIndex] or note.startTime >= beatsTicks[beatIndex+1]:
+		while note.start < beatsTicks[beatIndex] or note.start >= beatsTicks[beatIndex+1]:
 			beatIndex += 1
 
 	#	print beatIndex
 		# calculate the distance of this note to its nearest beat
-		distanceToBeatOnLeft = abs(note.startTime - beatsTicks[beatIndex])/float(beatIntervalTicks)
-		distanceToBeatOnRight = abs(note.startTime - beatsTicks[beatIndex+1])/float(beatIntervalTicks)
+		distanceToBeatOnLeft = abs(note.start - beatsTicks[beatIndex])/float(beatIntervalTicks)
+		distanceToBeatOnRight = abs(note.start - beatsTicks[beatIndex+1])/float(beatIntervalTicks)
 		distanceToNearestBeat = min(distanceToBeatOnLeft,distanceToBeatOnRight)
 	#	print distanceToNearestBeat
 
@@ -49,7 +49,7 @@ def get_syncopation(bar, parameters = None):
 		if distanceToNearestBeat == 0:	
 			totalSyncopation += 0
 		# or if this note is held on past the following beat, but ends on or before the later beat  
-		elif beatsTicks[beatIndex+1] < note.startTime+note.duration <= beatsTicks[beatIndex+2]:
+		elif beatsTicks[beatIndex+1] < note.start+note.duration <= beatsTicks[beatIndex+2]:
 			totalSyncopation += float(2)/distanceToNearestBeat
 		else:
 			totalSyncopation += float(1)/distanceToNearestBeat

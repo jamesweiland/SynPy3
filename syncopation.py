@@ -5,6 +5,7 @@ Institution: Centre for Digital Music, Queen Mary University of London
 '''
 from rhythm_parser import *
 from music_objects import *
+from miditoolkit import MidiFile
 
 
 def sync_perbar_permodel (model, bar, parameters=None):
@@ -30,7 +31,7 @@ def calculate_syncopation(model, source, parameters=None, outfile=None, barRange
                 sourceType = source
                 if source[-4:]==".mid":
                         import readmidi
-                        midiFile = readmidi.read_midi_file(source)
+                        midiFile = MidiFile(source)
                         barlist = readmidi.get_bars_from_midi(midiFile)
 
                 elif source[-4:]==".rhy":
@@ -82,15 +83,10 @@ def calculate_syncopation(model, source, parameters=None, outfile=None, barRange
                 if model is WNBD:
                         total =  total / numberOfNotes
 
-                if len(barResults)>barsDiscarded:
-                        average = total / (len(barResults)-barsDiscarded)
-                else:
-                        average = total
-
         output = {
                         "model_name":model.__name__ ,
                         "summed_syncopation":total,
-                        "mean_syncopation_per_bar":average, 
+                        "mean_syncopation_per_bar":average(barResults, barsDiscarded, total), 
                         "source":sourceType, 
                         "number_of_bars":len(barResults), 
                         "number_of_bars_not_measured":barsDiscarded, 
@@ -110,7 +106,12 @@ def calculate_syncopation(model, source, parameters=None, outfile=None, barRange
 
         return output
 
-
+def average(barResults, barsDiscarded, total):
+        if len(barResults) > barsDiscarded:
+              average = total / (len(barResults) - barsDiscarded)
+        else:
+              average = total
+        return average
 
 def results_to_xml(results, outputFilename):
         from xml.etree.ElementTree import Element, ElementTree

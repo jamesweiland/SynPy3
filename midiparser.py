@@ -8,7 +8,7 @@ Helpful MIDI info:
 http://crystal.apana.org.au/ghansper/midi_introduction/midi_file_form... 
 http://www.argonet.co.uk/users/lenny/midi/mfile.html 
 """ 
-import sys, string, types, exceptions 
+import sys, string, types 
 debugflag = 0 
 
 
